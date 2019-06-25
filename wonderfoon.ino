@@ -1,7 +1,7 @@
 /*
   Wonderfoon D1Mini 0105
-
-  http://wonderfoon.nl
+  hvantil
+  http://wonderfoon.eu
   WEMOS version
 */
 
