@@ -1,4 +1,10 @@
-
+/*
+  Wonderfoon D1Mini 0105
+  hvantil
+  http://wonderfoon.eu
+  WEMOS version
+  Optional feature / no warranty
+*/
 
 //webServer.b
 
