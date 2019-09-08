@@ -1,18 +1,11 @@
 /*
-  Wonderfoon D1Mini 0105
-  hvantil
+  Wonderfoon D1Mini 0108
   http://wonderfoon.eu
   WEMOS version
 */
 
-//webServer.b
- #include "DNSServer.h"
-#include "ESP8266WebServer.h"
-//webServer.e
-
 #include "EEPROM.h"
-#include "ESP8266WiFi.h"
-//#include "SoftwareSerial.h"
+//#include "ESP8266WiFi.h"
 # define Start_Byte 0x7E
 # define Version_Byte 0xFF
 # define Command_Length 0x06
@@ -31,8 +24,6 @@ const int dialPin   = 14;     //  the in for the telephone dialpulse (yellow)  D
 const int pulsePin  = 13;     // the in for the telephone dialbusy (green)      D7 13
 const int ampPin    = 15;     // to turn amplifier on / off                   D2 15
 const int busyPin   = 16;     // when ready playing                           D0 16
-const int wifiTime = 600000;      // time after which wifi will be turned off to save battery 60000ms = 10 minutes
-
 
 //dialpad config.b
 const int numPad[4][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {0, 10, 0}};
@@ -40,7 +31,6 @@ const int rowPin[4] = {13, 0, 2, 14};  //  D7 D8 D9 D13
 const int colPin[3] = {5, 4, 14 };        //  D3 D4 D5
 
 
-// On D1 Wifi  5 and 13 combined is not a problem
 //const int rowPin[4] = {D7, D8, D9, D13};  //  D7 D8 D9 D13
 //const int colPin[3] = {D3, D4, D5};         //  D3 D4 D5
 
@@ -50,16 +40,9 @@ int num;      // dialpad number
 int lastNum;  //
 //dialpad config.e
 
-//webServer.b
-const byte DNS_PORT = 53;
-IPAddress apIP(192, 168, 2, 1);
-DNSServer dnsServer;
-ESP8266WebServer webServer(80);
-String responseHTML;
-//webServer.e
 
 //boolean isPlaying = false;  // mp3
-boolean webserverOn = false;          // webserverstatus
+
 int countedPulses;          // then number of pulses counted at the end of dialbusy
 int pulseCount;             // number of pulses during counting
 int audioVolume;            // Audio Volume
@@ -72,22 +55,11 @@ int lastPulseState = HIGH;  // the previous reading from the pulse
 bool apmlifierState = false;
 
 int lastDialed[4] = {20, 21, 22, 23};   // last 4 dialed digits for PIN
-String pinCode = "3845";                // pin for wifi on
-String AfdelingNaam = "";               // name for webinterface
-String HTMLPlaymodeCheckbox;            // random checkbox in webinterface
-String HTMLPlayFolderRadioButtons;      // field with the 3 folder radiobuttons in the web page
-String HTMLRadioButtonEnd;              // radiobutton end of HTML
-String  HTMLRadioButton1;               // value of radionbutton 1
-String  HTMLRadioButton2;               // value of radionbutton 1
-String  HTMLRadioButton3;               // value of radionbutton 1
-String HTMLVolume;                      // value of volume
 int folderNumber;                       // current folderNumber
 int playMode;                           // current playmode
 
 bool PlayingRandom = false ;             // random playing mode from app or keypad  *
 
-//unsigned long hookCountTime;          // time of first op down  (depreciated)
-unsigned long wsUpTime;                 // time the ws has been on to be to switch it of after "wifiTime"
 unsigned long lastTime[4];                // time last for digits were dialed to determine pin
 
 // the following variables are unsigned long's because the time, measured in miliseconds,
@@ -113,39 +85,18 @@ void setup() {
 //  Serial.println("AfdelingNaam = " + AfdelingNaam + " folderNumber = " + folderNumber + " audioVolume = " + audioVolume + " playMode = " + playMode);
   EEPROM_init(0);                          // initialize to check if this is the first time the Wonderfoon is started addess 100 = 77
 
-  AfdelingNaam =  EEPROM_getName();       // read values from eprom before starting Wonderfoon
+
   folderNumber = EEPROM_getFolder();
   audioVolume = EEPROM_getVolume();
   playMode = EEPROM_getPlayMode();
 
-  WiFi.forceSleepBegin();
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP("!Wonderfoon-"+ AfdelingNaam +"!");                      //Set AccessPoint Name  ! to get on top of list when scanning
-  WiFi.hostname("Wonderfoon");
-  // if DNSServer is started with "*" for domain name, it will reply with provided IP to all DNS request
-  dnsServer.start(DNS_PORT, "*", apIP);  // captive portal
-
-  //Webserver paths
-  webServer.on("/", handleRoot);
-  webServer.on("/volume", handleVolume);        //to change volume
-  webServer.on("/harder", handleHarder);        //to set volume louder
-  webServer.on("/zachter", handleZachter);      //to set volume softer
-  webServer.on("/manual", handleManual);        //to control mp3 player manually
-  webServer.on("/config", handleConfig);        //to configurate name, random, folder
-  webServer.on("/about", handleAbout);          //to display about page
-  webServer.on("/start", handleTrack);          //to start a track in manual mode
-  webServer.on("/close", handleClose);          //to close browser and stop wifi
-  webServer.on("/rand", handleRandom);          //to play random/repeat from manual mode with *
-  webServer.on("/volumeend", handleVolumeEnd);  // when leaving volume page say volume
-  webServer.onNotFound(handleNotFound);         //diplay root
-
-  // replay to all other requests with same HTML
-  WiFi.mode(WIFI_OFF);     // detfault WIFI Off
+  //WiFi.forceSleepBegin();
+  //WiFi.mode(WIFI_OFF);     // detfault WIFI Off
 
   //Serial.begin(9600);                             // start serial for debug and mp3
 
   Serial.println("Booting");                      // 2 debuglines that will always be displayed in logging.
-  Serial.println("AfdelingNaam = " + AfdelingNaam + " folderNumber = " + folderNumber + " audioVolume = " + audioVolume + " playMode = " + playMode);
+  //Serial.println(" folderNumber = " + folderNumber + " audioVolume = " + audioVolume + " playMode = " + playMode);
 
   pinMode(hookPin, INPUT_PULLUP);                 //Set pins to input and add pullup resitor
   pinMode(dialPin, INPUT_PULLUP);
@@ -178,7 +129,7 @@ void setup() {
   playVolume();                                           // play vulume status
   playWillekeurig(playMode);                              // play random status
   playFolder(folderNumber);                               // play folder number status
-  switchWebServer(false,false);                                 //switch webserver to default setting, this will also play wifi status
+  //switchWebServer(false,false);                                 //switch webserver to default setting, this will also play wifi status
   mp3Sleep();                                             // set mp3 to battry save mode
   amplifier(0);                                           //Aplifier off to battry save mode
   // switchWebServer(true);                               //test always on uncomment to start with wifi on.
@@ -190,13 +141,6 @@ void setup() {
 void loop() {
 
   waitForHook();                                          // wait for someone to pick up the hook
-
-  if (webserverOn) {
-
-    dnsServer.processNextRequest();
-    webServer.handleClient();
-    checkWifiTime();                                      // check if wifiTime has passwed to switch of wifi
-  }
 }
 
 void waitForHook() {

@@ -91,32 +91,3 @@ unsigned int EEPROM_getPlayMode() {       //retrieve random mode setting is EEPR
   debug("GetPlaymode =" + String(pmode));
   return (pmode);
 }
-
-
-void EEPROM_storeName(String buffer) {     //store name setting is EEPROM address 3-18
-  int EEADRESS = 3; //2-16
-  while (buffer.length() < 15)
-  {
-    debug(String (buffer.length()));       // fill unused positions with space
-    buffer.concat(" ");
-  }
-  for (int L = 0; L < 15; ++L) {
-    EEPROM.write(EEADRESS + L, buffer[L]);
-  }
-  EEPROM.commit();
-  delay(500);
-  AfdelingNaam = buffer;
-  debug(buffer);
-}
-
-
-String EEPROM_getName() {                   //retieve name setting is EEPROM address 3-18
-  int EEADRESS = 3; //3-18
-  //delay(200);
-  String buffer;
-  for (int L = 0; L < 15; ++L) {
-    if (isAlphaNumeric(EEPROM.read(L + EEADRESS)))
-      buffer += char(EEPROM.read(L + EEADRESS));
-  }
-  return buffer;
-}

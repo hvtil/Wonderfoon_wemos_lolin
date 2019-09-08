@@ -32,6 +32,7 @@ void amplifier(bool onoff) {
 void setMP3Volume(int volume)
 {
   execute_CMD(0x06, 0, volume); // Set the volume (0x00~0x30)
+  EEPROM_storeVolume(volume);
   //execute_CMD(0x10, 1, 31); // Set the volume (0x00~0x30)
 
 }
@@ -107,35 +108,35 @@ void execute_CMD(byte CMD, byte Par1, byte Par2)
   //debug(millis());
 }
 
-String updateVolume(String updown) {
-
-  debug("Current Volume =" + String(audioVolume));
-  debug("Current Volume =" + updown);
-
-  if (updown == "+") {
-    if (audioVolume < 19)
-    {
-      audioVolume = audioVolume + 1;
-    }
-  }
-  if (updown == "-") {
-    if (audioVolume > 10)
-    {
-      audioVolume = audioVolume - 1;
-    }
-  }
-
-  if (updown.toInt() != 0)
-  {
-    audioVolume = updown.toInt() + 9;
-  }
-
-
-
-  EEPROM_storeVolume(audioVolume);
-  setMP3Volume(audioVolume);
-  return (String(audioVolume));
-}
+//String updateVolume(String updown) {
+//
+//  debug("Current Volume =" + String(audioVolume));
+//  debug("Current Volume =" + updown);
+//
+//  if (updown == "+") {
+//    if (audioVolume < 19)
+//    {
+//      audioVolume = audioVolume + 1;
+//    }
+//  }
+//  if (updown == "-") {
+//    if (audioVolume > 10)
+//    {
+//      audioVolume = audioVolume - 1;
+//    }
+//  }
+//
+//  if (updown.toInt() != 0)
+//  {
+//    audioVolume = updown.toInt() + 9;
+//  }
+//
+//
+//
+//  EEPROM_storeVolume(audioVolume);
+//  setMP3Volume(audioVolume);
+//  return (String(audioVolume));
+//}
 
 
 void playFolder(int folder) {
@@ -143,6 +144,14 @@ void playFolder(int folder) {
   delay(2000);
 }
 
+void playAlarm() {
+  setMP3Volume(19);
+  playTrackInFolder(112, 4);
+  delay(14000);
+  setMP3Volume(audioVolume);
+  countedPulses = 112;
+  folderNumber = 4;
+}
 
 
 void playVolume() {

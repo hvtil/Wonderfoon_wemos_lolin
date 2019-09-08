@@ -1,18 +1,3 @@
-//easteregg
-
-boolean ee() {
-  debug("egg");
-  if (lastDialed[1] == lastDialed[2] && lastDialed[3] == lastDialed[2])
-  {
-    debug("egg =1");
-    playegg();
-    return true;
-  }
-  return false;
-}
-
-
-
 void clearLastDialed()
 {
   lastDialed[0] = 20;
@@ -57,34 +42,16 @@ void addLastTime(long newTime) {
 
 }
 
-void checkLastFour() {
-  debug("Check Last four ");
-  int i;
-  for (i = 0; i < 4; i = i + 1) {
-    debug(String(lastDialed[i]));
-    debug(String(lastTime[i]));
-  }
-
-  String pin = String(lastDialed[0]) + String(lastDialed[1]) + String(lastDialed[2]) + String(lastDialed[3]);
-  if (pin == String(pinCode)) {
-    debug(pin + " Yes");
-    if (lastTime[3] - lastTime[0] < 10000) {
-
-      debug("wifi on");
-      // ws = true;
-      switchWebServer(true, true);        //turn wifi on
-      clearLastDialed();
-    }
-  }
-
-}
 
 void checkChangeVolume()
 {
   if (lastDialed[1] == 2 && lastDialed[2] == 1 && checkChangeTime())
   {
     debug("volume change");
-    updateVolume(String (lastDialed[3]));
+    audioVolume = lastDialed[3]+9;
+    setMP3Volume(audioVolume);
+ 
+    //updateVolume(String (lastDialed[3]));
     playVolume();
     clearLastDialed();
   }
@@ -99,8 +66,9 @@ void checkChangeFolder()
     {
       EEPROM_storeFolder(lastDialed[3]);
       playFolder(lastDialed[3]);
+      clearLastDialed();
     }
-    clearLastDialed();
+    
   }
 }
 
@@ -113,23 +81,13 @@ void checkChangeWillekeurig()
     {
       EEPROM_storePlayMode(lastDialed[3] - 1);
       playWillekeurig(lastDialed[3] - 1);
+      clearLastDialed();
     }
-    clearLastDialed();
+    
   }
 }
 
-void  checkChangeWifi() {
-  if (lastDialed[1] == 9 && lastDialed[2] == 1 && checkChangeTime())
-  {
-    debug("wifi change");
-    if ( lastDialed[3] < 3 )
-    {
-      switchWebServer( lastDialed[3] - 1, true);
-    }
-    clearLastDialed();
-  }
 
-}
 
 void checkReset()
 {
@@ -141,14 +99,16 @@ void checkReset()
       playReset();
       EEPROM_init(true);
       audioVolume = EEPROM_getVolume();
+      setMP3Volume(audioVolume);
       folderNumber = EEPROM_getFolder();
       playMode = EEPROM_getPlayMode();
       mp3Wake();
       playVolume();                                           // play vulume status
       playFolder(folderNumber);                               // play folder number status
       playWillekeurig(playMode);
+      clearLastDialed();
     }
-    clearLastDialed();
+    
   }
 }
 
@@ -167,12 +127,24 @@ void checkReset()
         PlayingRandom = true ;
         playContinu();
         playRandom();
+        clearLastDialed();
       }
-      clearLastDialed();
+      
     }
   }
 
+  bool check112() {
+     if (lastDialed[1] == 1 && lastDialed[2] == 1 && checkChangeTime())
+      {
 
+        if ( lastDialed[3] == 2 )
+        {
+          playAlarm();
+          clearLastDialed();
+        }
+       
+      }
+  }
 
 
 
@@ -186,12 +158,11 @@ void checkReset()
 
 
   void checkAll() {
-    checkLastFour();
+    
     checkChangeVolume();
     checkChangeFolder();
     checkChangeWillekeurig();
-    checkChangeWifi();
     checkChangeContinues();
+    check112();
     checkReset();
-    ee();
   }

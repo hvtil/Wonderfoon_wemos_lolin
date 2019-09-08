@@ -49,7 +49,8 @@ void waitForDial()
         addLastTime(millis());         // add last time for pin
         checkAll();
         playTrackInFolder(countedPulses, folderNumber);
-
+        
+        {folderNumber = EEPROM_getFolder();} 
       }
     }
 
