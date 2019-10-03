@@ -1,8 +1,4 @@
-
-
-
 ///  Numpad type 1  4x3 numpad 7 wire and ground
-
 
 void checkNumPad() {
   delay(20);                                     // check every 20 ms
@@ -29,7 +25,7 @@ void checkNumPad() {
   }
 
   if (czer && rzer) {                                                             // if both are 1 ( to prevent the reading of the row and col half way between row and col a change was happening.
-    PlayingRandom = false ;
+    PlayingContinuesly = false ;
     num = numPad[arrayFind("row")][arrayFind("col")] ;                            // find the number that belongs to this combination of row and col in the numPad array
 
     if (num > 10 ) {                                                              // 11 and 12 are * and #
@@ -47,8 +43,6 @@ void checkNumPad() {
   }
   else lastNum = 0;                         // if button is
   // debug("");
-
-
   debug(String(lastNum));
 }
 

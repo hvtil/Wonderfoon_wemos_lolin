@@ -13,11 +13,11 @@ void EEPROM_init(bool force) {
   {                                     // if started the first time
 
     debug ("init 14 - 1- 0 - 77");
-    EEPROM.write(0, 14);                // volume set to 10
+    EEPROM.write(0, 14);                // volume set to 5
     delay(500);
     EEPROM.write(1, 1);                 //  folder set to 1
     delay(500);
-    EEPROM.write(2, 0);                 //  folder set to 1
+    EEPROM.write(2, 0);                 //  willekeurig set to 1
     delay(500);
     EEPROM.write(100, 77);              // set initialized to 77    
     delay(500);

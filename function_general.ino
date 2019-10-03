@@ -30,7 +30,6 @@ void addLastNumber(int newNumber) {
   lastDialed[1] = lastDialed[2];
   lastDialed[2] = lastDialed[3];
   lastDialed[3] = newNumber;
-
 }
 
 void addLastTime(long newTime) {
@@ -38,20 +37,16 @@ void addLastTime(long newTime) {
   lastTime[1] = lastTime[2];
   lastTime[2] = lastTime[3];
   lastTime[3] = newTime;
-
-
 }
-
 
 void checkChangeVolume()
 {
   if (lastDialed[1] == 2 && lastDialed[2] == 1 && checkChangeTime())
   {
     debug("volume change");
-    audioVolume = lastDialed[3]+9;
+    audioVolume = lastDialed[3] + 9;
     setMP3Volume(audioVolume);
- 
-    //updateVolume(String (lastDialed[3]));
+    storeMP3Volume(audioVolume);
     playVolume();
     clearLastDialed();
   }
@@ -68,7 +63,6 @@ void checkChangeFolder()
       playFolder(lastDialed[3]);
       clearLastDialed();
     }
-    
   }
 }
 
@@ -83,11 +77,9 @@ void checkChangeWillekeurig()
       playWillekeurig(lastDialed[3] - 1);
       clearLastDialed();
     }
-    
+
   }
 }
-
-
 
 void checkReset()
 {
@@ -108,61 +100,49 @@ void checkReset()
       playWillekeurig(playMode);
       clearLastDialed();
     }
-    
   }
 }
 
-
-
-
-
-
-  void checkChangeContinues() {
-    if (lastDialed[1] == 5 && lastDialed[2] == 1 && checkChangeTime())
+void checkChangeContinues() {
+  if (lastDialed[1] == 5 && lastDialed[2] == 1 && checkChangeTime())
+  {
+    debug("continu change");
+    if ( lastDialed[3] == 1 )
     {
-      debug("continu change");
-      if ( lastDialed[3] == 1 )
-      {
-        debug("PlayRandom");
-        PlayingRandom = true ;
-        playContinu();
-        playRandom();
-        clearLastDialed();
-      }
-      
+      debug("PlayRandom");
+      PlayingContinuesly = true ;
+      playContinu();
+      // playRandom();
+      clearLastDialed();
     }
   }
+}
 
-  bool check112() {
-     if (lastDialed[1] == 1 && lastDialed[2] == 1 && checkChangeTime())
-      {
+bool check112() {
+  if (lastDialed[1] == 1 && lastDialed[2] == 1 && checkChangeTime())
+  {
 
-        if ( lastDialed[3] == 2 )
-        {
-          playAlarm();
-          clearLastDialed();
-        }
-       
-      }
+    if ( lastDialed[3] == 2 )
+    {
+      playAlarm();
+      clearLastDialed();
+    }
   }
+}
 
+bool checkChangeTime() {
+  if (lastTime[3] - lastTime[1] < 10000)
+    return true;
+  else
+    return false;
+}
 
+void checkAll() {
 
-
-  bool checkChangeTime() {
-    if (lastTime[3] - lastTime[1] < 10000)
-      return true;
-    else
-      return false;
-  }
-
-
-  void checkAll() {
-    
-    checkChangeVolume();
-    checkChangeFolder();
-    checkChangeWillekeurig();
-    checkChangeContinues();
-    check112();
-    checkReset();
-  }
+  checkChangeVolume();
+  checkChangeFolder();
+  checkChangeWillekeurig();
+  checkChangeContinues();
+  check112();
+  checkReset();
+}

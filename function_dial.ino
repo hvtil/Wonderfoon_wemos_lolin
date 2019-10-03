@@ -1,7 +1,6 @@
 void waitForDial()
 {
   int dialReading = digitalRead(dialPin);
-
   if (dialReading != lastDialState) {
     // reset the debouncing timer
     lastDialDebounceTime = millis();
@@ -19,13 +18,14 @@ void waitForDial()
       if (dialState == LOW) {
         debug("");
         Serial.write(" dial start");
-        PlayingRandom = false ;
+        PlayingContinuesly = false ;  //reset play continu
         debug("" );
         // resetMP3();
       }
 
       // if dialState goes from Low to High . Dial Ends
       if (dialState == HIGH)
+      
       {
         countedPulses = pulseCount;
         if (countedPulses <= 1 )
@@ -49,8 +49,7 @@ void waitForDial()
         addLastTime(millis());         // add last time for pin
         checkAll();
         playTrackInFolder(countedPulses, folderNumber);
-        
-        {folderNumber = EEPROM_getFolder();} 
+        folderNumber = EEPROM_getFolder();
       }
     }
 
@@ -89,11 +88,6 @@ void countPulse()
         debug1(String(pulseCount));
         debug("");
       }
-      else
-      {
-        // ledState = HIGH;
-      }
-      // digitalWrite(ledPin, ledState);
     }
   }
 

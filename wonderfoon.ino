@@ -1,8 +1,17 @@
 /*
-  Wonderfoon D1Mini 0108
+  Wonderfoon D1Mini 1001
   http://wonderfoon.eu
   WEMOS version
+
+  Amp pin use removed
+  1 side header for rotary phone
+  112 added
+  egg removed
+  hook is 12 to be able to boot while hook is off
+  
 */
+
+
 
 #include "EEPROM.h"
 //#include "ESP8266WiFi.h"
@@ -19,16 +28,22 @@ const int numPadType = 1;
 
 // Variables for Dialdisc Hook and Amplifier
 
-const int hookPin   = 12;     // the in for the telephone hook                 D6 12
-const int dialPin   = 14;     //  the in for the telephone dialpulse (yellow)  D5 14
-const int pulsePin  = 13;     // the in for the telephone dialbusy (green)      D7 13
-const int ampPin    = 15;     // to turn amplifier on / off                   D2 15
-const int busyPin   = 16;     // when ready playing                           D0 16
+//const int hookPin   = 12;     // the in for the telephone hook                 D6 12
+ //const int dialPin   = 14;     //  the in for the telephone dialpulse (yellow)  D5 14
+//const int pulsePin  = 13;     // the in for the telephone dialbusy (green)      D7 13
+//const int ampPin    = 15;     // to turn amplifier on / off                   D2 15
+//const int busyPin   = 16;     // when ready playing                           D0 16
+
+const int pulsePin  = 2;     // the in for the telephone dialbusy (green)      D4 2
+const int busyPin   = 4;     // when ready playing                             D3 0
+const int hookPin   = 12;     // the in for the telephone hook                  D2 4
+const int dialPin   = 5;     //  the in for the telephone dialpulse (yellow)   D1 5
+//const int ampPin    = 15;     // to turn amplifier on / off                   D2 15
 
 //dialpad config.b
 const int numPad[4][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {0, 10, 0}};
-const int rowPin[4] = {13, 0, 2, 14};  //  D7 D8 D9 D13
-const int colPin[3] = {5, 4, 14 };        //  D3 D4 D5
+const int rowPin[4] = {13, 15, 2, 14};  //   D7, D8, D4, D5
+const int colPin[3] = {5, 0, 14 };        //  D1, D?, D5
 
 
 //const int rowPin[4] = {D7, D8, D9, D13};  //  D7 D8 D9 D13
@@ -52,13 +67,13 @@ int pulseState = HIGH;      // the current state of the pulse
 int lastHookState = HIGH;   // the previous reading from the hook
 int lastDialState = HIGH;   // the previous reading from dailbusy
 int lastPulseState = HIGH;  // the previous reading from the pulse
-bool apmlifierState = false;
+//bool apmlifierState = false;
 
 int lastDialed[4] = {20, 21, 22, 23};   // last 4 dialed digits for PIN
 int folderNumber;                       // current folderNumber
 int playMode;                           // current playmode
 
-bool PlayingRandom = false ;             // random playing mode from app or keypad  *
+bool PlayingContinuesly = false ;             // random playing mode from app or keypad  *
 
 unsigned long lastTime[4];                // time last for digits were dialed to determine pin
 
@@ -74,35 +89,21 @@ unsigned long waitNextDial = 0;           // wait 1 second for next number  // n
 
 
 void setup() {
-  delay(1500);
+  delay(100);
   EEPROM.begin(256);                      // using 0-20 max
   Serial.begin(9600);                             // start serial for debug and mp3
-//  EEPROM_clear();
-//  AfdelingNaam =  EEPROM_getName();       // read values from eprom before starting Wonderfoon
-//  folderNumber = EEPROM_getFolder();
-//  audioVolume = EEPROM_getVolume();
-//  playMode = EEPROM_getPlayMode();
-//  Serial.println("AfdelingNaam = " + AfdelingNaam + " folderNumber = " + folderNumber + " audioVolume = " + audioVolume + " playMode = " + playMode);
   EEPROM_init(0);                          // initialize to check if this is the first time the Wonderfoon is started addess 100 = 77
-
 
   folderNumber = EEPROM_getFolder();
   audioVolume = EEPROM_getVolume();
+  //setMP3Volume(audioVolume);
   playMode = EEPROM_getPlayMode();
 
-  //WiFi.forceSleepBegin();
-  //WiFi.mode(WIFI_OFF);     // detfault WIFI Off
-
-  //Serial.begin(9600);                             // start serial for debug and mp3
-
   Serial.println("Booting");                      // 2 debuglines that will always be displayed in logging.
-  //Serial.println(" folderNumber = " + folderNumber + " audioVolume = " + audioVolume + " playMode = " + playMode);
-
   pinMode(hookPin, INPUT_PULLUP);                 //Set pins to input and add pullup resitor
   pinMode(dialPin, INPUT_PULLUP);
   pinMode(pulsePin, INPUT_PULLUP);
-  pinMode(ampPin, OUTPUT);                        //Set Aplifier pin to output
-
+//  pinMode(ampPin, OUTPUT);                        //Set Aplifier pin to output
 
   // Setup for Numpad.b
   for (int thisPin = 0; thisPin < (sizeof(rowPin) / sizeof(rowPin[0])); thisPin++) {  // Set pins to input and add pullup resitor
@@ -114,14 +115,11 @@ void setup() {
   }
 
   // Setup for Numpad.b
-
+  // switch amplifier on to read boot feedback
   mp3Wake();
-  amplifier(1);                                           // switch amplifier on to read boot feedback
-  setMP3Volume(audioVolume);                              // set volume to current volume
-  delay(1000);// set volume to read value ; 00 - 30
+  setMP3Volume(audioVolume);
   playTrackInFolder(10, 4);                               // Wonderfoon has started
   delay(2000);
-
   //put mp3 in sleep mode to save battery
   debug("Setup ready");
   debug("Start");
@@ -129,24 +127,18 @@ void setup() {
   playVolume();                                           // play vulume status
   playWillekeurig(playMode);                              // play random status
   playFolder(folderNumber);                               // play folder number status
-  //switchWebServer(false,false);                                 //switch webserver to default setting, this will also play wifi status
   mp3Sleep();                                             // set mp3 to battry save mode
-  amplifier(0);                                           //Aplifier off to battry save mode
-  // switchWebServer(true);                               //test always on uncomment to start with wifi on.
-
   Serial.println("");
   Serial.println("Ready....");
 }
 
 void loop() {
-
   waitForHook();                                          // wait for someone to pick up the hook
 }
 
 void waitForHook() {
   // read the state hook switch into a local variable:
   int hookReading = digitalRead(hookPin);
-
 
   // check to see if you just pressed/released the hook
   // (i.e. the input went from HIGH to LOW),  and you've waited
@@ -168,10 +160,9 @@ void waitForHook() {
       hookState = hookReading;                  // put the value read to the current hookstate.
       if (hookState == LOW) {                   // check state is LOW
         debug("The hook is picked up");         // only when hookstate changes and goes to low
-        mp3Wake();                              // Wake up MP3 since hook is picked up and set player to SD
-        amplifier(1);                           // switch on the amplifier
-        playTrackInFolder(99, 4);               // Play dailtone
+        mp3Wake();
         setMP3Volume(audioVolume);
+        playTrackInFolder(99, 4);               // Play dailtone
       }
 
       else {                                    // if not low but high (still one time action)
@@ -180,16 +171,15 @@ void waitForHook() {
         pulseCount = 0;
         MP3stop();                             // Stop MP3Player
         mp3Sleep();                            // Put MP3 is sleep mode since hook is down
-        amplifier(0);                          // amplfier of  CHECK THIS
-       
+        PlayingContinuesly = false;
       }
       //digitalWrite(ledPin, ledState);
       debug("");
     }
   }
-  
-  if (hookState == LOW) {                       // if Hook is LOW waitforDial or checkNumPad dependig on the version
 
+  if (hookState == LOW) {                       // if Hook is LOW waitforDial or checkNumPad dependig on the version
+    
     if (dialDisc)
     {
 
