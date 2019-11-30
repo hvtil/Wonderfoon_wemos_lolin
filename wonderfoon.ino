@@ -14,7 +14,7 @@
 
 
 #include "EEPROM.h"
-//#include "ESP8266WiFi.h"
+#include "ESP8266WiFi.h"
 # define Start_Byte 0x7E
 # define Version_Byte 0xFF
 # define Command_Length 0x06
@@ -89,7 +89,12 @@ unsigned long waitNextDial = 0;           // wait 1 second for next number  // n
 
 
 void setup() {
+  
   delay(100);
+  WiFi.disconnect();
+  delay(1);
+  WiFi.forceSleepBegin();
+  delay(1);
   EEPROM.begin(256);                      // using 0-20 max
   Serial.begin(9600);                             // start serial for debug and mp3
   EEPROM_init(0);                          // initialize to check if this is the first time the Wonderfoon is started addess 100 = 77
