@@ -27,7 +27,7 @@ void playRandom() {
 void mp3Wake()
 {
   execute_CMD(0x09, 0, 2); // Set Playmode to SD
-  delay(500);
+  //delay(500);
 }
 
 void mp3Sleep()
