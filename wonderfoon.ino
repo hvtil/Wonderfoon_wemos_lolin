@@ -8,7 +8,7 @@
   112 added
   egg removed
   hook is 12 to be able to boot while hook is off
-  
+  change to solve issue with mp3 yx5200
 */
 
 
@@ -90,7 +90,7 @@ unsigned long waitNextDial = 0;           // wait 1 second for next number  // n
 
 void setup() {
   
-  delay(100);
+  delay(500);                             // wait a little longer for YX5200 MP3 module
   WiFi.disconnect();
   delay(1);
   WiFi.forceSleepBegin();
