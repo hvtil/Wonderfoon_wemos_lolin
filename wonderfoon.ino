@@ -8,7 +8,7 @@
   112 added
   egg removed
   hook is 12 to be able to boot while hook is off
-  change to solve issue with mp3 yx5200
+  change to solve issue with mp3 yx5200  (03-01-22)
 */
 
 
