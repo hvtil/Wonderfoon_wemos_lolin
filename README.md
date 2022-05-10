@@ -16,3 +16,21 @@ In folder 01 till 03 you can put 10 mp3-files (songs) with filenames: 001.mp3 ti
 Folder 04 is the systemfolder these mp3-files are used for the voice feedback commands while starting the Wonderfoon or changing settings
 
 When compiling put all ino files in a folder called wonderfoon and open the wonderfoon.ino in the arduino application.
+
+if the MP3 module is from another brand the serial commands sometimes fail.
+Is this case 
+
+Vervang deze code (regels 33 t/m 38):
+
+void mp3Sleep()
+{
+execute_CMD(0x09, 0, 3); // Set MP3 player in sleep mode
+execute_CMD(0x0A, 0, 0); // Set MP3 player in power loss
+}
+met deze code:
+
+void mp3Sleep()
+{
+execute_CMD(0x09, 0, 4); // Set MP3 player in sleep mode
+//execute_CMD(0x0A, 0, 0); // Set MP3 player in power loss
+}
