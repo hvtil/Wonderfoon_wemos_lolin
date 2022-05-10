@@ -18,9 +18,7 @@ Folder 04 is the systemfolder these mp3-files are used for the voice feedback co
 When compiling put all ino files in a folder called wonderfoon and open the wonderfoon.ino in the arduino application.
 
 if the MP3 module is from another brand the serial commands sometimes fail.
-Is this case 
-
-replace the following lines in mp3.ino (line 33 t/m 38):
+Is this case replace the following lines in function_mp3.ino (line 33 t/m 38):
 
 void mp3Sleep()
 {
