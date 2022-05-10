@@ -20,7 +20,7 @@ When compiling put all ino files in a folder called wonderfoon and open the wond
 if the MP3 module is from another brand the serial commands sometimes fail.
 Is this case 
 
-Vervang deze code (regels 33 t/m 38):
+replace the following lines in mp3.ino (line 33 t/m 38):
 
 void mp3Sleep()
 {
