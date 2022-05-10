@@ -21,14 +21,24 @@ if the MP3 module is from another brand the serial commands sometimes fail.
 Is this case replace the following lines in function_mp3.ino (line 33 t/m 38):
 
 void mp3Sleep()
+
 {
+
 execute_CMD(0x09, 0, 3); // Set MP3 player in sleep mode
+
 execute_CMD(0x0A, 0, 0); // Set MP3 player in power loss
+
 }
-met deze code:
+
+
+with this code:
 
 void mp3Sleep()
+
 {
+
 execute_CMD(0x09, 0, 4); // Set MP3 player in sleep mode
+
 //execute_CMD(0x0A, 0, 0); // Set MP3 player in power loss
+
 }
