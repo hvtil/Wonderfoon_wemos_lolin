@@ -118,7 +118,7 @@ void checkChangeContinues() {
   }
 }
 
-bool check112() {
+void check112() {
   if (lastDialed[1] == 1 && lastDialed[2] == 1 && checkChangeTime())
   {
 
